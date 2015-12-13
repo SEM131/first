@@ -9,35 +9,23 @@ def download(ftp, file):
 def parse(ftp):
     data = ftp.nlst()
     for file in data:
-        print(file)
+        #print(file)
         download(ftp,file)
         readxml(file)
         os.remove(file)
-        
 
 def readxml(file):
     zip = ZipFile(file, 'r')
-    xmlfile = zip.open(zip.namelist()[0])
-    tree = etree.parse(xmlfile)
-    root = tree.getroot()
-    i =0
-    while i<3000:
-        try :
-            if root[0][i][21][0].text == '1322500':
-            #if root[0][i][21][1].text== 'Министерство образования и науки Российской Федерации':
-                #print(root[0][i][21][1].text)
-                print (root[0][i][1].text)
-                print (root[0][i][13].text)
-        except IndexError:
-            i+=1
-            continue
-        i=i+1
+    tree = etree.parse(zip.open(zip.namelist()[0]))
+    for i in tree.getroot()[0]:
+        try:
+            if i[21][0].text == '1322500': print(i[13].text, i[1].text)
+        except IndexError: continue
     zip.close()
 
 ftp=FTP('ftp.zakupki.gov.ru')
 ftp.login('free', 'free')
 ftp.cwd('fcs_nsi/nsiOrganization')
 parse(ftp)
-
 
 ftp.quit()
